@@ -1,4 +1,4 @@
-# HalfDome-data-releasing
+# HalfDome-DataRelease
 
 Data accompanying paper:
 
@@ -12,4 +12,4 @@ with credit to
 
 # Data releasing at NERSC
 
-Please contact Yici Zhong (yici.zhong@phys.s.u-tokyo.ac.jp) if you have any question 
+Please contact Yici Zhong (yici.zhong@phys.s.u-tokyo.ac.jp), Adrian Bayer (abayer@princeton.edu), Jia Liu (jia.liu@ipmu.jp) if you have any question 
