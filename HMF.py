@@ -4,7 +4,7 @@ import os, sys
 from mpi4py import MPI
 
 from nbodykit.lab import BigFileCatalog
-import illustris_python as il
+# import illustris_python as il
 
 root = 0
 comm = MPI.COMM_WORLD
@@ -14,12 +14,9 @@ rank = comm.Get_rank()
 basePathFastPM_seed = '/global/cfs/cdirs/cmb/data/halfdome/stampede2_3750Mpch_6144cube/final_res/3750Mpc_2048node_seed_%d/rfof_proc131072_nc6144_size3750_nsteps60lin_ldr0_rcvfalse_fstnone_pnf2_lnf2_s%d_dhf1.0000_tiled0.20_fll_elllim_10000_npix_8192_rfofkdt_8'
 seeds_fastpm = np.arange(100,122,2)
 
-basePathTNG = os.environ['SCRATCH']+'/TNG300-1-Dark/output'
 
 redshifts = [0, 1, 2, 3]
-redshift2seedTNG = {0:99, 1:50, 2:33, 3:25}
 V_fastpm = (3.75e3)**3
-V_tng = 205**3
 
 # load catalog once to get some global params (M0)
 rfof = BigFileCatalog(basePathFastPM_seed % (100,100) + '/rfof_%.4f' % 1, dataset='RFOF', comm=comm)
@@ -53,16 +50,11 @@ for zi,z in enumerate(redshifts):
         N_fastpm = np.mean(N_fastpm_seeds, axis=0)
         errN_fastpm = np.std(N_fastpm_seeds, axis=0)
         
-        # load tng halos
-        M_tng = il.groupcat.loadHalos(basePathTNG, redshift2seedTNG[z], fields='GroupMass')
-        N_tng, _ = np.histogram(np.log10(M_tng), bins=bin_edges, density=False)
-        
         # compute ratio and make plot
         n_fastpm = N_fastpm / V_fastpm
-        n_tng = N_tng / V_tng
         
-        R = n_fastpm / n_tng
-        errR = errN_fastpm / V_fastpm / n_tng
+        R = n_fastpm
+        # errR = errN_fastpm / V_fastpm / n_tng
         
         plt.errorbar(bin_centers+10, R, yerr=errR, label=r'$z=%d$'%z)
         
@@ -72,10 +64,4 @@ for zi,z in enumerate(redshifts):
         filearr[:,zi+1] = R
         
 if rank == root:
-    plt.ylim(0.5, 1.5)
-    plt.xlabel('log10(M)')
-    plt.ylabel('n_fastpm/n_tng')
-    plt.legend()
-    plt.savefig('HMF.png')
-    
-    np.savetxt('HMF.txt', filearr, header='R = HMF_fastpm / HMF_TNG300-1-Dark\nlog10M[Msun/h] ' + ''.join(['R(z=%.1f) '%z for z in redshifts]))
+    np.savetxt('HMF.txt', filearr, header='R = HMF_fastpm\nlog10M[Msun/h] ' + ''.join(['R(z=%.1f) '%z for z in redshifts]))
