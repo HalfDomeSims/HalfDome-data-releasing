@@ -31,7 +31,8 @@ bin_edges = np.arange(np.log10(mass_min), np.log10(mass_min)+4, bin_width)
 bin_centers = (bin_edges[1:] + bin_edges[:-1])/2
 
 if rank == root:
-    filearr = np.empty((len(bin_centers), 1+len(redshifts)))
+    n_fastpm_arr = np.empty((len(bin_centers), 1+len(redshifts)))
+    n_tng_arr = np.empty((len(bin_centers), 1+len(redshifts)))
 
 for zi,z in enumerate(redshifts):
     if rank == root: print('z',z)
@@ -68,8 +69,10 @@ for zi,z in enumerate(redshifts):
         
         # save to file
         if zi == 0:
-            filearr[:,0] = bin_centers+10
-        filearr[:,zi+1] = R
+            n_fastpm_arr[:,0] = bin_centers+10
+            n_tng_arr[:,0] = bin_centers+10
+        n_fastpm_arr[:,zi+1] = n_fastpm
+        n_tng_arr[:,zi+1] = n_tng
         
 if rank == root:
     plt.ylim(0.5, 1.5)
@@ -78,4 +81,6 @@ if rank == root:
     plt.legend()
     plt.savefig('HMF.png')
     
-    np.savetxt('HMF.txt', filearr, header='R = HMF_fastpm / HMF_TNG300-1-Dark\nlog10M[Msun/h] ' + ''.join(['R(z=%.1f) '%z for z in redshifts]))
+    #p.savetxt('HMF.txt', filearr, header='R = HMF_fastpm / HMF_TNG300-1-Dark\nlog10M[Msun/h] ' + ''.join(['R(z=%.1f) '%z for z in redshifts]))
+    np.savetxt('n_fastpm.txt', n_fastpm_arr, header='HMF for fastpm (number per unit volume in code units) \nlog10M[Msun/h] ' + ''.join(['R(z=%.1f) '%z for z in redshifts]))
+    np.savetxt('n_tng.txt', n_tng_arr, header='HMF for tng (number per unit volume in code units) \nlog10M[Msun/h] ' + ''.join(['R(z=%.1f) '%z for z in redshifts]))
